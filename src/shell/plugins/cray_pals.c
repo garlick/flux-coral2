@@ -55,6 +55,7 @@
  * PALS_RANKID - Global rank ID for this process
  * PALS_NODEID - Node index for this process
  * (e.g. head compute node is 0, next compute node is 1, etc)
+ * PALS_LOCAL_RANKID - Local (on this node) rank ID for this process
  * PALS_SPOOL_DIR - Application-specific directory for keeping runtime files
  * PMI_CONTROL_PORT - Port numbers for libpals to bind on each compute node as
  * a comma-separated list.
@@ -704,6 +705,7 @@ static int libpals_init (flux_plugin_t *p,
 
 /*
  * Set the 'PALS_RANKID' environment variable to the value of 'FLUX_TASK_RANK'
+ * Set 'PALS_LOCAL_RANKID' to the local id for this rank.
  */
 static int libpals_task_init (flux_plugin_t *p,
                               const char *topic,
@@ -714,14 +716,18 @@ static int libpals_task_init (flux_plugin_t *p,
     flux_shell_task_t *task;
     flux_cmd_t *cmd;
     int task_rank;
+    int localid;
 
     if (!shell || !(task = flux_shell_current_task (shell))
         || !(cmd = flux_shell_task_cmd (task))
         || flux_shell_task_info_unpack (task, "{s:i}", "rank", &task_rank) < 0
-        || flux_cmd_setenvf (cmd, 1, "PALS_RANKID", "%d", task_rank) < 0) {
+        || flux_cmd_setenvf (cmd, 1, "PALS_RANKID", "%d", task_rank) < 0
+        || flux_shell_task_info_unpack (task, "{s:i}", "localid", &localid) < 0
+        || flux_cmd_setenvf (cmd, 1, "PALS_LOCAL_RANKID", "%d", localid) < 0) {
         return -1;
     }
     shell_trace ("set PALS_RANKID to %d", task_rank);
+    shell_trace ("set PALS_LOCAL_RANKID to %d", localid);
 
     if (!no_edit_env) {
         const char *pmipath = flux_conf_builtin_get ("pmi_library_path",
