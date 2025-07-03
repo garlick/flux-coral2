@@ -18,4 +18,6 @@ libutil_la_SOURCES = \
 	eventlog.c \
 	idf58.h \
 	fsd.h \
-	fsd.c
+	fsd.c \
+	monotime.h \
+	monotime.c
