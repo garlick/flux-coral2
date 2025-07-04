@@ -45,6 +45,10 @@ Plus these early access test systems:
      - 24
      - MI-250X
 
+   * - hetchy
+     - 16
+     - MI-300A
+
 Documentation is currently under construction.
 
 
